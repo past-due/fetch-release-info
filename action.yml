@@ -1,13 +1,49 @@
-name: "Python Container Action Template"
-description: "Get started with Python Container actions"
-author: "Jacob Tomlinson"
-inputs:
-  myInput:
-    description: "Input to use"
-    default: "world"
-outputs:
-  myOutput:
-    description: "Output from the action"
+name: 'Fetch Release Info'
+description: 'Fetch GitHub Releases info and store as JSON files in a folder'
+author: 'past-due'
 runs:
-  using: "docker"
-  image: "Dockerfile"
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'download-cloud'
+  color: 'purple'
+inputs:
+  github_repo:
+    description: 'The owner and repository name from which to fetch GitHub Release Info. For example, octocat/Hello-World. Defaults to GITHUB_REPOSITORY.'
+    required: false
+    default: 'GITHUB_REPOSITORY'
+  github_token:
+    description: ''
+    required: false
+  github_release_id:
+    description: 'The release_id of the desired GitHub Release for which to fetch information'
+    required: false
+    default: 'latest'
+  output_directory:
+    description: 'The output directory in which to store downloaded JSON files'
+    required: false
+    default: 'releases'
+  cache_directory:
+    description: 'The cache directory in which to store information about prior API requests'
+    required: false
+    default: '_cache_data/releases'
+  output_file_extension:
+    description: 'The file extension to use for saved JSON files'
+    required: false
+    default: 'json'
+  fetch_release_index:
+    description: 'Whether to fetch all releases - i.e. the release index (https://developer.github.com/v3/repos/releases/#list-releases-for-a-repository)'
+    required: false
+    default: false
+  filter_draft_releases:
+    description: 'Whether to remove draft releases from the release index'
+    required: false
+    default: true
+  filter_release_keys:
+    description: 'A JSON array of strings specifying keys to remove from the release object (https://developer.github.com/v3/repos/releases/#get-a-single-release)'
+    required: false
+    default: '["author"]'
+  filter_asset_keys:
+    description: 'A JSON array of strings specifying keys to remove from each asset object in the release.assets array (https://developer.github.com/v3/repos/releases/#get-a-single-release)'
+    required: false
+    default: '["uploader", "download_count"]'

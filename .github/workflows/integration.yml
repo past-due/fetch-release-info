@@ -4,13 +4,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
       - name: Self test
         id: selftest
-
-        # Put your action repo here
-        uses: jacobtomlinson/python-container-action@master
-
-      - name: Check outputs
-        run: |
-          test "${{ steps.selftest.outputs.myOutput }}" == "Hello world"
+        uses: past-due/fetch-release-info@master
+        with:
+          github_repo: 'nlohmann/json'
+          github_token: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Archive output of run
+        uses: actions/upload-artifact@v1
+        with:
+          name: releases
+          path: releases
