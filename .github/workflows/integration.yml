@@ -11,6 +11,7 @@ jobs:
         with:
           github_repo: 'nlohmann/json'
           github_token: '${{ secrets.GITHUB_TOKEN }}'
+          calculate_asset_info: true
       - name: Archive output of run
         uses: actions/upload-artifact@v1
         with:

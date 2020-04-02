@@ -2,6 +2,7 @@ import os
 import requests
 import json
 from pathlib import Path
+import hashlib
 
 
 def create_path_for_file_if_not_exists(file_path):
@@ -78,7 +79,33 @@ class GitHubReleaseInfoDownloader:
 
         return releases
 
-    def get_release(self, session, release_id, output_file_extension='json'):
+    def calculate_assets_info(self, session, release):
+        # For each asset:
+        for n, asset in enumerate(release['assets']):
+            # Download the asset, calculate hashes
+            url = asset['url']
+            headers = {"Accept": "application/octet-stream"}
+
+            sha256 = hashlib.sha256()
+            sha512 = hashlib.sha512()
+            blake2b = hashlib.blake2b()
+            with session.get(url, headers=headers, stream=True) as r:
+                r.raise_for_status()
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:  # filter out keep-alive new chunks
+                        sha256.update(chunk)
+                        sha512.update(chunk)
+                        blake2b.update(chunk)
+
+            asset['sha256'] = sha256.hexdigest()
+            asset['sha512'] = sha512.hexdigest()
+            asset['blake2b'] = blake2b.hexdigest()
+
+            release['assets'][n] = asset
+
+        return release
+
+    def get_release(self, session, release_id, output_file_extension='json', calculate_asset_info=False):
         url = "https://api.github.com/repos/"+self.github_repo+"/releases/"+release_id
         output_filename = release_id
         # store the last-modified / etag headers for a request inside a cache file alongside
@@ -101,6 +128,9 @@ class GitHubReleaseInfoDownloader:
 
         # Sanitize response (as desired)
         release = self.release_sanitizer(release)
+
+        if calculate_asset_info is True:
+            release = self.calculate_assets_info(session, release)
 
         # Save response
         output_filename = os.path.sep.join([self.output_directory, output_filename])
@@ -173,6 +203,7 @@ def main():
     filter_draft_releases = os.getenv("INPUT_FILTER_DRAFT_RELEASES", default="true") == "true"
     filter_release_keys_str = os.getenv("INPUT_FILTER_RELEASE_KEYS", default='["author"]')
     filter_asset_keys_str = os.getenv("INPUT_FILTER_ASSET_KEYS", default='["uploader", "download_count"]')
+    calculate_asset_info = os.getenv("INPUT_CALCULATE_ASSET_INFO", default="false") == "true"
 
     output_directory = os.path.normpath(output_directory)
     cache_directory = os.path.normpath(cache_directory)
@@ -208,7 +239,7 @@ def main():
                 json.dump(releases, f, ensure_ascii=False, indent=4)
 
     print("Fetching information on specific GitHub release_id: " + github_release_id)
-    fetcher.get_release(session, github_release_id, output_file_extension)
+    fetcher.get_release(session, github_release_id, output_file_extension, calculate_asset_info)
 
 
 if __name__ == "__main__":

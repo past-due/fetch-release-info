@@ -47,3 +47,7 @@ inputs:
     description: 'A JSON array of strings specifying keys to remove from each asset object in the release.assets array (https://developer.github.com/v3/repos/releases/#get-a-single-release)'
     required: false
     default: '["uploader", "download_count"]'
+  calculate_asset_info:
+    description: 'If `true`, downloads the assets and calculates various info (SHA256 hashes, etc), adding the data to the output files'
+    required: false
+    default: false
