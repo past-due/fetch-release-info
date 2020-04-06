@@ -238,8 +238,9 @@ def main():
             with open((os.path.sep.join([output_directory, 'index']) + "." + output_file_extension), 'w', encoding='utf-8') as f:
                 json.dump(releases, f, ensure_ascii=False, indent=4)
 
-    print("Fetching information on specific GitHub release_id: " + github_release_id)
-    fetcher.get_release(session, github_release_id, output_file_extension, calculate_asset_info)
+    if len(github_release_id) > 0:
+        print("Fetching information on specific GitHub release_id: " + github_release_id)
+        fetcher.get_release(session, github_release_id, output_file_extension, calculate_asset_info)
 
 
 if __name__ == "__main__":

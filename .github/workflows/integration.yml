@@ -1,7 +1,7 @@
 name: Integration Test
 on: [push]
 jobs:
-  build:
+  fetch_latest_and_index:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -17,5 +17,22 @@ jobs:
       - name: Archive output of run
         uses: actions/upload-artifact@v1
         with:
-          name: releases
+          name: latest_and_index
+          path: releases
+  fetch_index_only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Self test
+        id: selftest
+        uses: past-due/fetch-release-info@master
+        with:
+          github_repo: 'nlohmann/json'
+          github_token: '${{ secrets.GITHUB_TOKEN }}'
+          github_release_id: ''
+          fetch_release_index: true
+      - name: Archive output of run
+        uses: actions/upload-artifact@v1
+        with:
+          name: index_only
           path: releases
