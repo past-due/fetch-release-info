@@ -4,7 +4,7 @@ jobs:
   fetch_latest_and_index:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Self test
         id: selftest
         uses: past-due/fetch-release-info@master
@@ -15,14 +15,14 @@ jobs:
           fetch_release_index: true
           filter_asset_keys: '["uploader"]'
       - name: Archive output of run
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: latest_and_index
           path: releases
   fetch_index_only:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Self test
         id: selftest
         uses: past-due/fetch-release-info@master
@@ -32,7 +32,7 @@ jobs:
           github_release_id: ''
           fetch_release_index: true
       - name: Archive output of run
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: index_only
           path: releases
